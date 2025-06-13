@@ -1,7 +1,9 @@
 ### Commands
 
 [] "this", command to set the local storage (get, history, clear).
+
 [] Delete "clear" => renamed in "this clear".
+
 [] "log", command to log into an account (will be show before the path).
 
 ### Functionality
@@ -11,6 +13,7 @@
 ### Design
 
 [] Change the icon from the menu above.
+
 [] Design the decrease screen, full screen and close screen buttons.
 
 ### Availability
