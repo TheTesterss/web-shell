@@ -1,6 +1,6 @@
 ### Commands
 
-[X] "this", command to set the local storage (get, history, clear).
+[] "this", command to set the local storage (get, history, clear).
 [] Delete "clear" => renamed in "this clear".
 [] "log", command to log into an account (will be show before the path).
 
