@@ -25,7 +25,7 @@ function createWindow() {
     const startUrl = `file://${path.join(__dirname, "app/index.html")}`;
     mainWindow.loadURL(startUrl);
     mainWindow.setTitle("Shell");
-
+    mainWindow.webContents.openDevTools();
     if (isDev) {
         mainWindow.webContents.openDevTools();
     }

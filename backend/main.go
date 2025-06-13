@@ -30,7 +30,7 @@ func handleCommand(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method != http.MethodPost {
-		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
+		http.Error(w, "Only POST method is allowed for echo command", http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -42,7 +42,6 @@ func handleCommand(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var response CommandResponse
-
 	switch req.Command {
     case "echo":
         output, err := commands.Echo(req.Args)
@@ -52,8 +51,8 @@ func handleCommand(w http.ResponseWriter, r *http.Request) {
         } else {
             response.Output = output
         }
-    case "clear":
-        output, err := commands.Clear(req.Args)
+    case "this":
+        output, err := commands.This(req.Args)
         if err != nil {
             response.Output = ""
             response.Error = err.Error()

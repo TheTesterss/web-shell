@@ -27,7 +27,10 @@ const InputLine: React.FC<InputLineProps> = ({ user = "user1", path, currentInpu
                 <span className="text-yellow-400">{path}</span>
             </div>
             <div className="relative">
-                <span className="text-white absolute left-0 top-0 select-none pointer-events-none" style={{ width: promptWidth }}>
+                <span
+                    className="text-white absolute left-0 top-0 select-none pointer-events-none"
+                    style={{ width: promptWidth }}
+                >
                     {prompt}
                 </span>
                 <span
@@ -40,9 +43,7 @@ const InputLine: React.FC<InputLineProps> = ({ user = "user1", path, currentInpu
                     }}
                 >
                     {currentInput}
-                    {showCursor && (
-                        <span className="inline-block w-2 h-4 bg-white animate-blink align-middle" />
-                    )}
+                    {showCursor && <span className="inline-block w-2 h-4 bg-white animate-blink align-middle" />}
                 </span>
             </div>
         </div>

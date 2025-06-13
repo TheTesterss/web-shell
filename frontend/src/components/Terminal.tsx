@@ -7,8 +7,16 @@ const Terminal: React.FC = () => {
     const [history, setHistory] = useState<string[]>([]);
     const [currentInput, setCurrentInput] = useState<string>("");
     const [showCursor, setShowCursor] = useState<boolean>(true);
-    const [path, _setPath] = useState<string>("~/home");
+    const [upArrowPressed, setUpArrowPressed] = useState<number>(0);
+    const [path, setPath] = useState<string>("~/home");
     const terminalRef = useRef<HTMLDivElement>(null);
+
+    const setters = {
+        setHistory,
+        setCurrentInput,
+        setPath,
+        setUpArrowPressed
+    };
 
     useEffect(() => {
         try {
@@ -46,7 +54,6 @@ const Terminal: React.FC = () => {
             let output = "";
             let error = "";
 
-            // Parse command and args
             const [command, ...argsArr] = trimmedCommandLine.split(" ");
             const args = argsArr.join(" ");
 
@@ -64,15 +71,20 @@ const Terminal: React.FC = () => {
                 }
 
                 const data = await response.json();
-                if (data.output === "__CLEAR__") {
-                    localStorage.removeItem("terminalHistory");
-                    setHistory([]);
-                    setCurrentInput("");
-                    return;
+                if (data.output.startsWith("__")) {
+                    const value = data.output.split("__")[1];
+                    const module = await import(`../commands/${value}.ts`);
+                    let result = module.execute(data.output.split("__").slice(2), setters);
+                    if (typeof result === "string") {
+                        output = result;
+                    }
+                    if (Array.isArray(result)) {
+                        output = "\n" + result.map((item: string) => `> ${item}`).join("\n");
+                    }
                 }
                 if (data.error) {
                     error = data.error;
-                } else {
+                } else if (!data.output.startsWith("__")) {
                     output = data.output;
                 }
             } catch (e: any) {
@@ -83,7 +95,7 @@ const Terminal: React.FC = () => {
                 if (error) {
                     return [...prev, error, ""];
                 }
-                return output ? [...prev, output, ""] : [...prev, ""];
+                return prev.length === 0 && output === "" ? [] : [...prev, output, ""];
             });
 
             setCurrentInput("");
@@ -91,20 +103,43 @@ const Terminal: React.FC = () => {
         [path, history]
     );
 
+    const handleArrows = (prev: string) => {
+        const elements = history.filter(
+            (line: string, index: number) => line.startsWith("$ ") && index > 0 && history[index - 1].includes("~/home")
+        );
+        const nextCommand = elements[elements.length - upArrowPressed];
+        if (!nextCommand) return prev;
+        return nextCommand ? nextCommand.split("$ ")[1] || "" : prev;
+    };
+
     const handleKeyDown = useCallback(
         (e: KeyboardEvent) => {
             e.preventDefault();
 
             if (e.key === "Enter") {
+                setUpArrowPressed(0);
                 processCommand(currentInput);
             } else if (e.key === "Backspace") {
+                setUpArrowPressed(0);
                 setCurrentInput((prev) => prev.slice(0, -1));
+            } else if (e.key === "ArrowUp") {
+                setUpArrowPressed((prev) => prev + 1);
+                if (upArrowPressed >= history.length) {
+                    setUpArrowPressed((prev) => Math.max(prev - 1, 0));
+                    return;
+                }
+                console.log(upArrowPressed);
+                setCurrentInput((prev) => handleArrows(prev));
+            } else if (e.key === "ArrowDown") {
+                setUpArrowPressed((prev) => Math.max(prev - 1, 0));
+                setCurrentInput((prev) => handleArrows(prev));
             } else if (e.key.length === 1) {
+                setUpArrowPressed(0);
                 setCurrentInput((prev) => prev + e.key);
             }
         },
 
-        [currentInput, processCommand]
+        [currentInput, processCommand, handleArrows]
     );
 
     useEffect(() => {
