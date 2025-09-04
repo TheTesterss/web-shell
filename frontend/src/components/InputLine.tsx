@@ -34,7 +34,7 @@ const InputLine: React.FC<InputLineProps> = ({ user = "user1", path, currentInpu
                     {prompt}
                 </span>
                 <span
-                    ref={inputRef as any}
+                    ref={inputRef}
                     className="text-white break-all whitespace-pre-wrap block"
                     style={{
                         paddingLeft: promptWidth,

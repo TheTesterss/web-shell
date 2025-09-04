@@ -8,7 +8,7 @@ function createWindow() {
         height: 700,
         minWidth: 800,
         minHeight: 600,
-        icon: undefined,
+        icon: "./assets/icon.png",
         frame: true,
         titleBarStyle: "default",
         autoHideMenuBar: true,
@@ -25,7 +25,6 @@ function createWindow() {
     const startUrl = `file://${path.join(__dirname, "app/index.html")}`;
     mainWindow.loadURL(startUrl);
     mainWindow.setTitle("Shell");
-    mainWindow.webContents.openDevTools();
     if (isDev) {
         mainWindow.webContents.openDevTools();
     }

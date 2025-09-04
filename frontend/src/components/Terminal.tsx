@@ -7,10 +7,12 @@ const Terminal: React.FC = () => {
     const [history, setHistory] = useState<string[]>([]);
     const [currentInput, setCurrentInput] = useState<string>("");
     const [showCursor, setShowCursor] = useState<boolean>(true);
-    const [upArrowPressed, setUpArrowPressed] = useState<number>(0);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_upArrowPressed, setUpArrowPressed] = useState<number>(0);
     const [path, setPath] = useState<string>("~/home");
     const terminalRef = useRef<HTMLDivElement>(null);
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const setters = {
         setHistory,
         setCurrentInput,
@@ -23,15 +25,18 @@ const Terminal: React.FC = () => {
             const storedHistory = JSON.parse(localStorage.getItem("terminalHistory")!);
 
             if (storedHistory.length > 0 && history.length === 0) setHistory(storedHistory);
-        } catch (error) {
+        } catch (e: unknown) {
+            console.error(e)
             setHistory([]);
         }
-    }, []);
+    }, [history.length]);
 
     useEffect(() => {
         try {
             localStorage.setItem("terminalHistory", JSON.stringify(history));
-        } catch (error) {}
+        } catch (e: unknown) {
+            console.error(e)
+        }
         if (terminalRef.current) {
             setTimeout(() => {
                 terminalRef.current!.scrollTop = terminalRef.current!.scrollHeight;
@@ -74,7 +79,7 @@ const Terminal: React.FC = () => {
                 if (data.output.startsWith("__")) {
                     const value = data.output.split("__")[1];
                     const module = await import(`../commands/${value}.ts`);
-                    let result = module.execute(data.output.split("__").slice(2), setters);
+                    const result = module.execute(data.output.split("__").slice(2), setters);
                     if (typeof result === "string") {
                         output = result;
                     }
@@ -87,8 +92,8 @@ const Terminal: React.FC = () => {
                 } else if (!data.output.startsWith("__")) {
                     output = data.output;
                 }
-            } catch (e: any) {
-                error = `Network or command execution error: ${e.message || "Unknown error"}`;
+            } catch (e: unknown) {
+                error = `Network or command execution error: ${(e as Error).message || "Unknown error"}`;
             }
 
             setHistory((prev) => {
@@ -100,17 +105,8 @@ const Terminal: React.FC = () => {
 
             setCurrentInput("");
         },
-        [path, history]
+        [path, setters]
     );
-
-    const handleArrows = (prev: string) => {
-        const elements = history.filter(
-            (line: string, index: number) => line.startsWith("$ ") && index > 0 && history[index - 1].includes("~/home")
-        );
-        const nextCommand = elements[elements.length - upArrowPressed];
-        if (!nextCommand) return prev;
-        return nextCommand ? nextCommand.split("$ ")[1] || "" : prev;
-    };
 
     const handleKeyDown = useCallback(
         (e: KeyboardEvent) => {
@@ -123,23 +119,39 @@ const Terminal: React.FC = () => {
                 setUpArrowPressed(0);
                 setCurrentInput((prev) => prev.slice(0, -1));
             } else if (e.key === "ArrowUp") {
-                setUpArrowPressed((prev) => prev + 1);
-                if (upArrowPressed >= history.length) {
-                    setUpArrowPressed((prev) => Math.max(prev - 1, 0));
-                    return;
-                }
-                console.log(upArrowPressed);
-                setCurrentInput((prev) => handleArrows(prev));
+                setUpArrowPressed((prev) => {
+                    const newVal = prev + 1;
+                    const elements = history.filter(
+                        (line: string, index: number) =>
+                            line.startsWith("$ ") && index > 0 && history[index - 1].includes("~/home")
+                    );
+                    const nextCommand = elements[elements.length - newVal];
+                    if (nextCommand) {
+                        setCurrentInput(nextCommand.split("$ ")[1] || "");
+                    }
+                    return newVal;
+                });
             } else if (e.key === "ArrowDown") {
-                setUpArrowPressed((prev) => Math.max(prev - 1, 0));
-                setCurrentInput((prev) => handleArrows(prev));
+                setUpArrowPressed((prev) => {
+                    const newVal = Math.max(prev - 1, 0);
+                    const elements = history.filter(
+                        (line: string, index: number) =>
+                            line.startsWith("$ ") && index > 0 && history[index - 1].includes("~/home")
+                    );
+                    const nextCommand = elements[elements.length - newVal];
+                    if (nextCommand) {
+                        setCurrentInput(nextCommand.split("$ ")[1] || "");
+                    } else if (newVal === 0) {
+                        setCurrentInput("");
+                    }
+                    return newVal;
+                });
             } else if (e.key.length === 1) {
                 setUpArrowPressed(0);
                 setCurrentInput((prev) => prev + e.key);
             }
         },
-
-        [currentInput, processCommand, handleArrows]
+        [processCommand, currentInput, history]
     );
 
     useEffect(() => {

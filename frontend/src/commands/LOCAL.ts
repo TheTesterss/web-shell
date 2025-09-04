@@ -1,5 +1,6 @@
-export function execute(args: string[], setters: { [key: string]: Function }): any {
-    let history = JSON.parse(localStorage.getItem("terminalHistory") || "[]");
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+export function execute(args: string[], setters: { [key: string]: Function }): unknown {
+    const history = JSON.parse(localStorage.getItem("terminalHistory") || "[]");
     switch (args[0]) {
         case "CLEAR":
             localStorage.removeItem("terminalHistory");

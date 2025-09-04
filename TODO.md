@@ -1,11 +1,11 @@
 ### Commands
 
 [x] "this", command to set the local storage (get, history, clear).
-[] Delete "clear" => renamed in "this clear".
+[x] Delete "clear" => renamed in "this clear".
 [] "log", command to log into an account (will be show before the path).
 
 ### Functionality
-[] Up arrow + Down arrow to navigate throught the used commands.
+[x] Up arrow + Down arrow to navigate throught the used commands.
 - A big part of this is done, just need to correct some wrong increments.
 
 ### Design

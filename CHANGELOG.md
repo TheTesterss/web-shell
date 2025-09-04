@@ -1,3 +1,7 @@
+2025-09-4
+V3.2.1
+/ Updated the arrow system to check last/new commands.
+&&&&&&
 2025-06-13
 V3.2
 + Enhanced the functionalities by adding a this function used to manage the localStorage api.
