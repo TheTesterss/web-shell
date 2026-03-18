@@ -1,11 +1,12 @@
-2026-06
+2026-07-01
+next_major_update
 major
 Passage from classic HTML (react) to canvas
 Adding setup to be able to use system commands in front of mine
 Removing all commands
 Adding new ones to default
 &&&&&&
-2026-06
+2026-07-01
 next_major_update
 major
 Adding >, ||, | and && (usable with new commands)
